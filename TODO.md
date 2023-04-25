@@ -1,5 +1,11 @@
 # TODO
 
+## Which DB?
+Neo4j (currently using) : has potential issues with permissions
+SurrealDB
+ArrangoDB
+DGraph
+
 ## Schema
 
 
