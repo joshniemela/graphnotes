@@ -1,4 +1,4 @@
-(ns app.core
+(ns core
   (:require [clojure.tools.cli :refer [parse-opts]])
   (:require [neo4clj.client :as client])
   (:gen-class))
