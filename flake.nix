@@ -31,7 +31,6 @@
               clojure
               openjdk
               leiningen
-
             ];
 
             LD_LIBRARY_PATH = lib.makeLibraryPath [ stdenv.cc.cc 
