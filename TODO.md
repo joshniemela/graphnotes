@@ -1,11 +1,13 @@
 # TODO
 
 ## Which DB?
-Neo4j (currently using) : has potential issues with permissions
-SurrealDB
-ArrangoDB
-DGraph
-Asami (db in clojure)
+Asami (picked)
+Neo4j: has potential issues with permissions
+SurrealDB: No clojure driver
+ArrangoDB: (?)
+DGraph:(?)
+XTDB: Slightly too overkill
+Datalevin: similar to Asami
 
 ## Schema
 
