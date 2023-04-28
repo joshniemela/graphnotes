@@ -1,13 +1,13 @@
-# TODO
+# TODO (Descending priority)
+* Database (Josh)
+* Signing/Authentication (Tarik (?))
+* Concurrency for DB (Josh)
+* API for calling the database
 
-## Which DB?
-Asami (picked)
-Neo4j: has potential issues with permissions
-SurrealDB: No clojure driver
-ArrangoDB: (?)
-DGraph:(?)
-XTDB: Slightly too overkill
-Datalevin: similar to Asami
+* Front-end website (Tarik(?))
+
+
+
 
 ## Schema
 
