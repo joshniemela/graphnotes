@@ -30,6 +30,4 @@ FIXME: listing of options this app accepts.
 
 ## License
 
-Copyright © 2023 FIXME
-
-Project is under MIT
+Copyright © 2023 MIT
