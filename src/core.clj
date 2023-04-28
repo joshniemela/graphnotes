@@ -1,5 +1,6 @@
 (ns core
-  (:require [asami.core :as d]))
+  (:require [asami.core :as d])
+  (:require [clojure.java.io :as io]))
   ;(:gen-class)) might be needed for java
 
 
@@ -22,16 +23,38 @@
           first 
           first))
 
+(defn start-database
+  "Start a database at path and return a connection"
+  [path db-uri]
+
+  ; Check if database exists
+  (let [conn (d/connect db-uri)
+        name (str path "/asami.db")]
+    (if (.exists (io/file name))
+      ; If it exists, slurp it
+      (do (println "Starting existing database at" name)
+          (d/import-data conn (slurp name)))
+
+      (println "Creating new database at" path))
+
+      conn))
+
+; Use home directory for data
+(def data-path (str (System/getProperty "user.home") "/.graphnotes"))
+
 
 (def db-uri "asami:mem://graphnotes")
-(defn -main []
-  ; Create stateful connection to database
-  (def conn (d/connect db-uri))
+(defn -main []  
+  (def conn (start-database data-path db-uri))
   ; Add users
-  (d/transact conn users)
+  (println (get-user-pass "admin" conn))
   ; Get password for user every second
-  (let [data (d/export-str conn)]
-    ; Save as file
-    (spit "data.edn" data))
+  (d/transact conn users)
+
+  (let [data (d/export-str conn)
+        name (str data-path "/asami.db")]
+    ; Add users
+    (io/make-parents name)
+    (spit (str name) data))
     ; exit
     (System/exit 0))
