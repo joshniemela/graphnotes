@@ -1,3 +1,4 @@
 .envrc
 .direnv
+.lein-repl-history
 target

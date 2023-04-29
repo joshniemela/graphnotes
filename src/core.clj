@@ -1,7 +1,18 @@
 (ns core
   (:require [asami.core :as d])
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io])
+  (:require [compojure.core :refer :all]
+            [compojure.route :as route]))
   ;(:gen-class)) might be needed for java
+
+
+
+(defroutes app-routes
+  (GET "/" [] "<h1> Hello world! this is the root of the website</h1>")
+  (GET "/graphnotes" [] "RETURN DATABASE CONTENTS")
+  (PUT "/graphnotes/:id" [id] "ADD NOTE")
+  (route/resources "/")
+  (route/not-found "<h1> NOT FOUND </h1>"))
 
 
 (def users [{:user/username "admin"
@@ -70,4 +81,3 @@
     (Thread. 
     (fn [] (close-database conn data-path))))
 )
-

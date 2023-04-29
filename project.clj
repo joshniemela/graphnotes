@@ -8,7 +8,9 @@
     [org.clojure/tools.cli "1.0.214"]
     [com.github.full-spectrum/neo4clj-core "1.1.0"] ; maybe remove since Asami is used
     [org.clojars.quoll/asami "2.3.3"]
-    [buddy/buddy-hashers "1.8.158"]]
+    [buddy/buddy-hashers "1.8.158"]
+    [compojure "1.7.0"]
+    [ring/ring-json "0.5.1"]]
   :main ^:skip-aot core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
