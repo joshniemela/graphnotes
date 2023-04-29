@@ -33,28 +33,39 @@
     (if (.exists (io/file name))
       ; If it exists, slurp it
       (do (println "Starting existing database at" name)
-          (d/import-data conn (slurp name)))
+        @(d/import-data conn (slurp name)))
 
       (println "Creating new database at" path))
 
-      conn))
+      (d/db conn)))
 
 ; Use home directory for data
 (def data-path (str (System/getProperty "user.home") "/.graphnotes"))
 
 
 (def db-uri "asami:mem://graphnotes")
+
+(defn close-database [conn path]
+  "Gracefully close the database, and save it to disk"
+  (println "\nClosing database...")
+  (Thread/sleep 1000)
+  (let [data (d/export-str conn)
+        name (str path "/asami.db")]
+    (io/make-parents name)
+    (spit (str name) data))
+  (println "Saved database to" path))
+
 (defn -main []  
-  (def conn (start-database data-path db-uri))
+  (def db (start-database data-path db-uri))
+  (def conn (d/connect db-uri))
   ; Add users
   (println (get-user-pass "admin" conn))
   ; Get password for user every second
   (d/transact conn users)
 
-  (let [data (d/export-str conn)
-        name (str data-path "/asami.db")]
-    ; Add users
-    (io/make-parents name)
-    (spit (str name) data))
-    ; exit
-    (System/exit 0))
+  (.addShutdownHook 
+    (Runtime/getRuntime) 
+    (Thread. 
+    (fn [] (close-database conn data-path))))
+)
+
