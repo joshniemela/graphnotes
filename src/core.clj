@@ -23,6 +23,14 @@
           first 
           first))
 
+
+; Use home directory for data
+(def data-path (str (System/getProperty "user.home") "/.graphnotes"))
+
+
+(def db-uri "asami:mem://graphnotes")
+
+
 (defn start-database
   "Start a database at path and return a connection"
   [path db-uri]
@@ -38,12 +46,6 @@
       (println "Creating new database at" path))
 
       (d/db conn)))
-
-; Use home directory for data
-(def data-path (str (System/getProperty "user.home") "/.graphnotes"))
-
-
-(def db-uri "asami:mem://graphnotes")
 
 (defn close-database [conn path]
   "Gracefully close the database, and save it to disk"
