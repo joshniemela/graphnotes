@@ -8,6 +8,7 @@
             [org.httpkit.server :refer [run-server]]
             [neo4clj.client :as client]
 
+            [graphnotes.routes :refer [ping-routes]]
             [graphnotes.cli :refer [show-help assert-login get-opts]])
   (:gen-class))
 
