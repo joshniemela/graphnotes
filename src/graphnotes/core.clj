@@ -7,10 +7,25 @@
             [reitit.ring.middleware.parameters :as parameters]
             [org.httpkit.server :refer [run-server]]
             [neo4clj.client :as client]
+
             [graphnotes.cli :refer [show-help assert-login get-opts]])
   (:gen-class))
 
 
+(def app
+  (ring/ring-handler
+   (ring/router
+    [["/api"
+      ping-routes
+      ;crud-routes
+      ]]
+    {:data {:coercion reitit.coercion.spec/coercion
+            :muuntaja m/instance
+            :middleware [parameters/parameters-middleware
+                         muuntaja/format-middleware
+                         rrc/coerce-exceptions-middleware
+                         rrc/coerce-request-middleware
+                         rrc/coerce-response-middleware]}})))
 
 (defn connect-db [opts]
   (client/connect 
@@ -24,6 +39,8 @@
   (let [opts (get-opts args)]
     (show-help opts)
     (assert-login opts)
+    (run-server app {:port 8080})
+    (println "Starting server on port 8080")
     (let [conn (connect-db opts)]
       (client/create-node! conn {:labels [:course] :props {:name "test2131"}}))))
 
