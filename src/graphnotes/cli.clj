@@ -1,4 +1,4 @@
-(ns cli
+(ns graphnotes.cli
   (:require [clojure.tools.cli :refer [parse-opts]]))
 
 

@@ -12,7 +12,7 @@
     [http-kit "2.3.0"]
     [com.github.full-spectrum/neo4clj-core "1.1.0"]
     [buddy/buddy-hashers "1.8.158"]]
-  :main ^:skip-aot core
+  :main ^:skip-aot graphnotes.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})

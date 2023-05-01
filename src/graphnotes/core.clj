@@ -1,4 +1,4 @@
-(ns core
+(ns graphnotes.core
   (:require [muuntaja.core :as m]
             [reitit.ring :as ring]
             [reitit.coercion.spec]
@@ -7,8 +7,10 @@
             [reitit.ring.middleware.parameters :as parameters]
             [org.httpkit.server :refer [run-server]]
             [neo4clj.client :as client]
-            [cli :refer [show-help assert-login get-opts]])
+            [graphnotes.cli :refer [show-help assert-login get-opts]])
   (:gen-class))
+
+
 
 (defn connect-db [opts]
   (client/connect 
