@@ -1,75 +1,89 @@
 (ns core
-  (:require [asami.core :as d])
-  (:require [clojure.java.io :as io])
-  (:require [compojure.core :refer :all]
-            [compojure.route :as route]))
-  ;(:gen-class)) might be needed for java
+  (:require [muuntaja.core :as m]
+            [reitit.ring :as ring]
+            [reitit.coercion.spec]
+            [reitit.ring.coercion :as rrc]
+            [reitit.ring.middleware.muuntaja :as muuntaja]
+            [reitit.ring.middleware.parameters :as parameters]
+            [org.httpkit.server :refer [run-server]]
+            [neo4clj.client :as client]
+            [clojure.tools.cli :refer [parse-opts]])
+  (:gen-class))
+
+(def cli-options
+  [["-u" "--username USERNAME" "Username to use"
+    :default (System/getenv "GRAPHNOTES_USERNAME")
+  ]
+   ["-p" "--password PASSWORD" "Password to use"
+    :default (System/getenv "GRAPHNOTES_PASSWORD")
+   ]
+   ["-a" "--address ADDRESS" "Address to use"
+    :default (System/getenv "GRAPHNOTES_ADDRESS")
+   ]
+   ["-h" "--help" "Show help"]])
 
 
+(def help-message "Usage: graphnotes [options]
+Options:
+  -u, --username USERNAME    Username to use, defaults to GRAPHNOTES_USERNAME
+  -p, --password PASSWORD    Password to use, defaults to GRAPHNOTES_PASSWORD
+  -a, --address ADDRESS      Address to use, defaults to GRAPHNOTES_ADDRESS
+  -h, --help                 Show help")
 
-(def users [{:user/username "admin"
-             :user/password "bcrypt+sha512$eb7f717717f66d3b535c1fc3875d1bde$12$9a494e70cefbddab76f8cf6d0842d2fd6d1fa9142bdcc8d3"}])
+(defn assert-login [opts]
+  (try
+    (assert (and (:username opts) (:password opts) (:address opts)))
+    (catch AssertionError e
+      (do 
+        (println "Missing one or more required arguments:")
+        (doseq [opt [:username :password :address]]
+        (when-not (get opts opt)
+          (println (str "\t" (name opt) " is required, set it as an environment variable or pass it as an argument"))))
+        (println help-message)
+        (System/exit 1)))))
 
+(defn check-if-help [opts]
+  (when (:help opts)
+    (do
+      (println help-message)
+      (System/exit 0))))
 
+(defn connect [opts]
+  (client/connect 
+    (:address opts)
+    (:username opts) 
+    (:password opts) 
+    {:encryption :required}))
 
-(defn get-user-pass [username conn]
-  "Get the password for a user"
-  ; Check if user exists and return password if it exists
-  (->> (d/q `[:find ?pass
-          :where
-          [?u :user/username ?user]
-          [(= ?user ~username)]
-          [?u :user/password ?pass]] (d/db conn))
+(defn -main [& args]
+  (let [args (parse-opts args cli-options)]
+    (let [opts (get args :options)]
+      (check-if-help opts)
+      (assert-login opts)
+      (let [conn (client/connect (:address opts) (:username opts) (:password opts))]
+        (client/create-node! conn {:labels [:course] :props {:name "test2131"}})))))
 
-          ; Query returns a list of lists which should only
-          ; contain one password, so we take the first one of the first list
-          first 
-          first))
+        
+;(defn close-database [conn path]
+;  "Gracefully close the database, and save it to disk"
+;  (println "\nClosing database...")
+;  (Thread/sleep 1000)
+;  (let [data (d/export-str conn)
+;        name (str path "/asami.db")]
+;    (io/make-parents name)
+;    (spit (str name) data))
+;  (println "Saved database to" path))
 
-
-; Use home directory for data
-(def data-path (str (System/getProperty "user.home") "/.graphnotes"))
-
-
-(def db-uri "asami:mem://graphnotes")
-
-
-(defn start-database
-  "Start a database at path and return a connection"
-  [path db-uri]
-
-  ; Check if database exists
-  (let [conn (d/connect db-uri)
-        name (str path "/asami.db")]
-    (if (.exists (io/file name))
-      ; If it exists, slurp it
-      (do (println "Starting existing database at" name)
-        @(d/import-data conn (slurp name)))
-
-      (println "Creating new database at" path))
-
-      (d/db conn)))
-
-(defn close-database [conn path]
-  "Gracefully close the database, and save it to disk"
-  (println "\nClosing database...")
-  (Thread/sleep 1000)
-  (let [data (d/export-str conn)
-        name (str path "/asami.db")]
-    (io/make-parents name)
-    (spit (str name) data))
-  (println "Saved database to" path))
-
-(defn -main []  
-  (def db (start-database data-path db-uri))
-  (def conn (d/connect db-uri))
-  ; Add users
-  (println (get-user-pass "admin" conn))
-  ; Get password for user every second
-  (d/transact conn users)
-
-  (.addShutdownHook 
-    (Runtime/getRuntime) 
-    (Thread. 
-    (fn [] (close-database conn data-path))))
-)
+;(defn -main []  
+;  (def db (start-database data-path db-uri))
+;  (def conn (d/connect db-uri))
+;  ; Add users
+;  (println (get-user-pass "admin" conn))
+;  ; Get password for user every second
+;  (d/transact conn users)
+;
+;  (.addShutdownHook 
+;    (Runtime/getRuntime) 
+;    (Thread. 
+;    (fn [] (close-database conn data-path))))
+;)
