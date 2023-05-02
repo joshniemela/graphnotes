@@ -37,6 +37,5 @@
     (println "Starting server on port 8080")
     (let [conn (connect-db opts)] 
       (run-server (app conn) {:port 8080})
-      ;(client/create-node! conn {:labels [:course] :props {:name "test2131"}})
-      ;(println (get-by-label conn :course)
-      ))))
+      (client/create-node! conn {:labels [:course] :props {:name "test2131"}})
+      (println (get-by-label conn :course)))))
