@@ -8,18 +8,18 @@
             [org.httpkit.server :refer [run-server]]
             [neo4clj.client :as client]
 
-            [graphnotes.routes :refer [ping-routes]]
+            [graphnotes.routes :refer [ping-routes crud-routes]]
             [graphnotes.cli :refer [show-help assert-login get-opts]]
             [graphnotes.db :refer :all])
   (:gen-class))
 
 
-(def app
+(defn app [db-conn]
   (ring/ring-handler
    (ring/router
     [["/api"
       ping-routes
-      ;crud-routes
+      (crud-routes db-conn)
       ]]
     {:data {:coercion reitit.coercion.spec/coercion
             :muuntaja m/instance
@@ -34,8 +34,8 @@
   (let [opts (get-opts args)]
     (show-help opts)
     (assert-login opts)
-    (run-server app {:port 8080})
     (println "Starting server on port 8080")
-    (let [conn (connect-db opts)]
+    (let [conn (connect-db opts)] 
+      (run-server (app conn) {:port 8080})
       (client/create-node! conn {:labels [:course] :props {:name "test2131"}})
       (println (get-by-label conn :course)))))
