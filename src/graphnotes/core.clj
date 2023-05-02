@@ -9,7 +9,8 @@
             [neo4clj.client :as client]
 
             [graphnotes.routes :refer [ping-routes]]
-            [graphnotes.cli :refer [show-help assert-login get-opts]])
+            [graphnotes.cli :refer [show-help assert-login get-opts]]
+            [graphnotes.db :refer :all])
   (:gen-class))
 
 
@@ -28,13 +29,6 @@
                          rrc/coerce-request-middleware
                          rrc/coerce-response-middleware]}})))
 
-(defn connect-db [opts]
-  (client/connect 
-    (:address opts)
-    (:username opts) 
-    (:password opts) 
-    ;{:encryption :required} TODO: cannot be used with bolt connection, fix?
-    ))
 
 (defn -main [& args]
   (let [opts (get-opts args)]
@@ -43,4 +37,5 @@
     (run-server app {:port 8080})
     (println "Starting server on port 8080")
     (let [conn (connect-db opts)]
-      (client/create-node! conn {:labels [:course] :props {:name "test2131"}}))))
+      (client/create-node! conn {:labels [:course] :props {:name "test2131"}})
+      (println (get-by-label conn :course)))))
