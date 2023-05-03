@@ -1,36 +1,59 @@
-(ns auth
-  (:require [buddy.hashers :as hs])
-  (:require [asami.core :as d]))
+(ns graphnotes.auth
+  (:require [buddy.auth]
+            [buddy.hashers :as hashers]
+            [ring.util.response :refer [response redirect]]))
 
+(def userstore (atom {}))
 
-(defn get-user-pass [username conn]
-  "Get the password for a user"
-  ; Check if user exists and return password if it exists
-  (->> (d/q `[:find ?pass
-          :where
-          [?u :user/username ?user]
-          [(= ?user ~username)]
-          [?u :user/password ?pass]] (d/db conn))
+(defn create-user [user]
+  (let [password (:password user)
+        username (:username user)]
+    (-> user
+        (assoc :password-hash (hashers/derive password {:alg :bcrypt+sha512}))
+        (dissoc :password)
+        (->> (swap! userstore assoc username)))))
 
-          ; Query returns a list of lists which should only
-          ; contain one password, so we take the first one of the first list
-          first 
-          first))
+(comment (create-user {:username "tikiyeon" :password "1234"})
+         (create-user {:username "josh" :password "1234"})
+         userstore)
 
-(def users [{:user/username "admin"
-             :user/password "bcrypt+sha512$eb7f717717f66d3b535c1fc3875d1bde$12$9a494e70cefbddab76f8cf6d0842d2fd6d1fa9142bdcc8d3"}])
+(defn get-user [username]
+  (get @userstore username))
 
-(def db-uri "asami:mem://graphnotes")
-(d/create-database db-uri)
-(def conn (d/connect db-uri))
+(defn get-user-by-username-and-passwod [username password]
+  (let [user (get-user username)]
+    (when (hashers/check password (:password-hash user))
+      user)))
 
-@(d/transact conn {:tx-data users})
+(comment
+  (get-user "tikiyeon")
+  (get-user-by-username-and-passwod "tikiyeon" "1234"))
 
+(defn post-login [{{username "username" password "password"} :form-params
+                   session :session :as req}]
+  (if-let [user (get-user-by-username-and-passwod username password)]
+    (assoc (redirect "/")
+           :session (assoc session :identity (:id user)))
+    (redirect "/logout/")))
 
+(defn post-logout [{session :session}]
+  (assoc (redirect "/logout/")
+         :session (dissoc session :identity)))
 
-(defn authenticate [username password conn]
-  "Return true if the user exists and the password is correct"
-  ; User contains the username and password hash
-  (let [hashed-password (get-user-pass username conn)]
-    (hs/check password hashed-password)))
-  
+(comment
+  (post-login {:username "tikiyeon" :password "1234"})
+  (post-login {:username "josh" :password "1234"})
+  (post-logout {}))
+
+(defn is-authenticated [{user :user :as req}]
+  (not (nil? user)))
+
+(defn wrap-user [handler]
+  (fn [{username :identity :as req}]
+    (handler (assoc req :user (get-user username)))))
+
+(comment
+  (is-authenticated {:user "tikiyeon"})
+  (is-authenticated {:user "josh"})
+  (wrap-user post-login)
+  (wrap-user post-logout))
