@@ -1,4 +1,5 @@
-(ns graphnotes.routes)
+(ns graphnotes.routes
+  (:require [graphnotes.db :refer :all]))
 
 
 (def ping-routes
@@ -7,6 +8,13 @@
                    {:status 200
                     :body {:ping "pong"}})}])
 
+
+(defn crud-routes [conn]
+  ["/find/:label" {:get {:parameters {:path {:label string?}}
+                    :responses {200 {:body {:nodes list?}}}
+                    :handler (fn [{{{:keys [label]} :path} :parameters}]
+                               {:status 200
+                                :body {:nodes (get-by-label conn label)}}) }}])
 ;
 ;       ["/get" {:get {:parameters {:query {:x int?, :y int?}}
 ;                       :responses  {200 {:body {:total int?}}}
