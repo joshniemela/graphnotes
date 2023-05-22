@@ -1,13 +1,23 @@
 # TODO (Descending priority)
+* Front-end website (Tarik, Josh)
+- Landing page, login form, "take me to public shit idk (skip auth)"
+- sign-up page
+- graph page: recent, (query search, full-text search, #hops): dropdown, popular tags.
+
 * Database (Josh)
+* API for calling the database
 * Signing/Authentication (Tarik (?))
 * Concurrency for DB (Josh)
-* API for calling the database
-
-* Front-end website (Tarik(?))
 
 
+Example of data on meta-data
+[displayed-name]<[]-[link-name]
+[displayed-name]<[]>[link-name]
+[displayed-name]-[]>[link-name]
 
+Dijkstras
+[dijkstras]-[operates-on]>[graphs]
+[dijkstras]<[variation]>[bfs]
 
 ## Schema
 
@@ -18,8 +28,6 @@
 * Add field / Set property
 * Upload file to property
 * Create delete request / Hide 
-
-## CLI / TUI(?)
 
 ### STEP BY STEP TUI
 #### Add node
