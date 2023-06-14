@@ -3,7 +3,7 @@
    [reagent.dom :as rdom]
    [re-frame.core :as re-frame]
    [webpage.events :as events]
-   [webpage.views :as views]
+   [webpage.login :as login]
    [webpage.config :as config]
    ))
 
@@ -16,7 +16,7 @@
   (re-frame/clear-subscription-cache!)
   (let [root-el (.getElementById js/document "app")]
     (rdom/unmount-component-at-node root-el)
-    (rdom/render [views/main-panel] root-el)))
+    (rdom/render [login/main-panel] root-el)))
 
 (defn init []
   (re-frame/dispatch-sync [::events/initialize-db])

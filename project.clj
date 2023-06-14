@@ -13,6 +13,8 @@
     [com.github.full-spectrum/neo4clj-core "1.1.0"]
     [buddy/buddy-hashers "1.8.158"]
     [re-frame "1.2.0"]]
+    [reagent "1.1.1"]
+    [cljs-ajax "0.8.4"]
   :main ^:skip-aot graphnotes.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
