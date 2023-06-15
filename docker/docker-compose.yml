@@ -1,0 +1,10 @@
+services:
+  webpage: 
+    build:
+      context: ../
+      dockerfile: ./docker/webpage/Dockerfile
+    ports:
+      - 8280:8280
+    container_name: webpage
+    volumes:
+      - ../webpage/:/webpage
